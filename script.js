@@ -15,4 +15,9 @@ addEventListener("resize", () => {
 function init() {
   console.log("Bork!");
   console.log("Bork!");
+  console.log("Bork!");
 }
+
+addEventListener("click", (e) => {
+  console.log("Bang!");
+});
