@@ -14,4 +14,5 @@ addEventListener("resize", () => {
 
 function init() {
   console.log("Bork!");
+  console.log("Bork!");
 }
