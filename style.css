@@ -6,6 +6,19 @@
   box-sizing: border-box;
 }
 
-canvas {
-  background-color: black;
+.container {
+  position: relative;
+}
+
+#canvas1 {
+  display: block;
+  z-index: 1;
+}
+
+#canvas2 {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
 }
