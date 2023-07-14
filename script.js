@@ -99,3 +99,5 @@ canvas2.addEventListener("click", (e) => {
   // ctx.style.z-index = "10";
   console.log(e.clientX);
 });
+
+// track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
