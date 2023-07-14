@@ -9,13 +9,19 @@
 .container {
   position: relative;
   background-color: #000;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 #canvas1 {
   display: block;
+  position: absolute;
+  top: -50vh;
+  left: -50vw;
   z-index: 1;
-  transform: pulse;
-  animation: pulse 5s ease 0 infinite;
+  border: red 1px dashed;
+  animation: pulseSubtle 5s ease infinite, rotation 500s infinite;
 }
 
 #canvas2 {
@@ -26,7 +32,21 @@
   z-index: 2;
 }
 
-@keyframes pulse {
+@keyframes pulseSubtle {
+  0% {
+    opacity: 100%;
+  }
+
+  50% {
+    opacity: 70%;
+  }
+
+  100% {
+    opacity: 100%;
+  }
+}
+
+@keyframes pulseFull {
   0% {
     opacity: 100%;
   }
@@ -37,5 +57,18 @@
 
   100% {
     opacity: 100%;
+  }
+}
+
+@keyframes rotation {
+  0% {
+    rotate: 0deg;
+  }
+
+  50% {
+  }
+
+  100% {
+    rotate: 360deg;
   }
 }
