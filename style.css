@@ -33,6 +33,12 @@
   left: 0;
   z-index: 2;
   /* border: green 5px dashed; */
+  /* animation: rotation 5s ease infinite; */
+}
+
+.spin {
+  border: green 5px dashed;
+  animation: rotation 5s ease infinite;
 }
 
 @keyframes pulseSubtle {
