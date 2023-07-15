@@ -12,24 +12,27 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #canvas1 {
   display: block;
   position: absolute;
-  top: -50vh;
-  left: -50vw;
   z-index: 1;
-  border: red 1px dashed;
+  /* border: red 1px dashed; */
   animation: pulseSubtle 5s ease infinite, rotation 500s infinite;
 }
 
 #canvas2 {
   display: block;
   position: absolute;
+
   top: 0;
   left: 0;
   z-index: 2;
+  /* border: green 5px dashed; */
 }
 
 @keyframes pulseSubtle {
