@@ -25,7 +25,9 @@ const ctx = canvas1.getContext("2d");
 // Create Background
 
 let starfield = [];
-let density = 500;
+// let density = 500;
+let density = window.innerWidth;
+console.log(density);
 let speed = 1;
 let blink = 0.0025;
 let maxDepth = 1;
@@ -102,7 +104,7 @@ for (let i = 0; i < density; i++) {
   i < density / 30 ? starfield[i].draw2() : starfield[i].draw();
 }
 
-console.log(starfield);
+// console.log(starfield);
 
 // function animate() {
 //   ctx.fillStyle = "#000";
