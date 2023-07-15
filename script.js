@@ -153,6 +153,13 @@ canvas2.addEventListener("click", (e) => {
   ctx2.closePath();
 
   console.log(e.clientX);
+
+  ctx2.beginPath();
+  ctx2.strokeStyle = "gray";
+  ctx2.moveTo(e.clientX, e.clientY);
+  ctx2.lineTo(0, 0);
+  ctx2.stroke();
+  ctx2.closePath();
 });
 
 // track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
