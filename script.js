@@ -1,95 +1,99 @@
 //////////////////////////////////////////////
-// Utility Functions
+// Utility
 
-const randomColor = (min, max) =>
+const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1) + min);
+
+let centerX = window.innerWidth / 2;
+let centerY = window.innerHeight / 2;
+let centerToCorner = Math.floor(
+  Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2))
+);
+let starfield = [];
+let constellation = [];
+let size = 1;
+let spin = randomInt(0, 3.14);
+let density =
+  window.innerWidth < window.innerHeight
+    ? window.innerWidth
+    : window.innerHeight;
+console.log(
+  "Inner Width",
+  window.innerWidth,
+  "Inner Height",
+  window.innerHeight
+);
+console.log("Density", density);
+
+const vw = (percent) => (percent * window.innerWidth) / 100;
+const vh = (percent) => (percent * window.innerHeight) / 100;
+
+// Find Center
+// ctx.beginPath();
+// ctx.fillStyle = `#700`;
+// ctx.arc(centerToCorner, centerToCorner, 10, 0, Math.PI * 2);
+// ctx.fill();
+// ctx.closePath();
 
 //////////////////////////////////////////////
 // Create Canvas 1
 
 const canvas1 = document.getElementById("canvas1");
-console.log(canvas1);
-canvas1.width = window.innerWidth + window.innerWidth;
-canvas1.height = window.innerHeight + window.innerHeight;
+canvas1.width = centerToCorner * 2;
+canvas1.height = centerToCorner * 2;
 canvas1.style.background = "#000";
 const ctx = canvas1.getContext("2d");
 
 //////////////////////////////////////////////
 // Create Background
-
-let starfield = [];
-let density = 5000;
-let speed = 1;
-let blink = 0.0025;
-let maxDepth = 1;
-let size = 2;
-
-let centerX = canvas1.width / 2;
-let centerY = canvas1.height / 2;
-
-// ctx.beginPath();
-// ctx.fillStyle = `#900`;
-// ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
-
-ctx.fill();
-ctx.closePath();
-
-class backgroundStar {
+class BackgroundStar {
   constructor() {
     this.x = Math.random() * canvas1.width;
     this.y = Math.random() * canvas1.height;
-    this.z = Math.random() * size;
-    this.dim = Math.random();
-    this.direction = "up";
+    this.z = Math.random() + size;
+    this.dim = randomInt(0.5, 1);
+    // this.direction = "up";
+    this.special = `rgb(${randomInt(150, 255)},${randomInt(
+      150,
+      200
+    )},${randomInt(200, 255)}`;
   }
 
+  // White Stars
   draw() {
     ctx.beginPath();
     ctx.fillStyle = `rgba(255,255,255,${this.dim})`;
     ctx.arc(this.x, this.y, this.z, 0, Math.PI * 2);
-    ctx.shadowColor = "#000";
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
     ctx.fill();
     ctx.closePath();
   }
 
+  // Rare Stars
   draw2() {
+    // star shadow
     ctx.beginPath();
-    ctx.fillStyle = `rgba(${randomColor(150, 255)},${randomColor(
-      150,
-      255
-    )},${randomColor(200, 255)},${this.dim})`;
-    ctx.arc(this.x, this.y, this.z + 2, 0, Math.PI * 2);
-    ctx.shadowColor = "#fff";
-    ctx.shadowBlur = 2;
-    // ctx.shadowOffsetX = 1;
-    // ctx.shadowOffsetY = 1;
+    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.arc(this.x, this.y, this.z + 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
+
+    // star body
     ctx.beginPath();
+    ctx.fillStyle = this.special;
+    ctx.arc(this.x, this.y, this.z + 2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.closePath();
   }
-
-  // motion() {
-  //   if (this.dim >= 1) this.direction = "down";
-  //   if (this.dim <= 0.1) this.direction = "up";
-
-  //   if (this.direction === "up") {
-  //     this.dim = this.dim + blink;
-  //   } else {
-  //     this.dim = this.dim - blink;
-  //   }
-  // }
 }
 
+// Populate Starfield
 for (let i = 0; i < density; i++) {
-  starfield[i] = new backgroundStar();
-  console.log(density / 10);
-
-  i < density / 10 ? starfield[i].draw2() : starfield[i].draw();
+  starfield[i] = new BackgroundStar();
+  // console.log(density / 30);
+  i < density / 33 ? starfield[i].draw2() : starfield[i].draw();
 }
+
+// console.log(starfield);
 
 // function animate() {
 //   ctx.fillStyle = "#000";
@@ -109,12 +113,12 @@ for (let i = 0; i < density; i++) {
 // loop();
 
 //////////////////////////////////////////////
-// Create Canvas 2
+// Create Canvas 2 - interactive
 
 const canvas2 = document.getElementById("canvas2");
-console.log(canvas2);
-canvas2.width = window.innerWidth;
-canvas2.height = window.innerHeight;
+// console.log(canvas2);
+canvas2.width = window.innerWidth - 10;
+canvas2.height = window.innerHeight - 10;
 canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
 
@@ -123,23 +127,105 @@ const ctx2 = canvas2.getContext("2d");
 
 let clickActive = false;
 
-// let clickT = ["click", "touchstart"];
-
+let clickCount = 0;
+let mouseX = "";
+let mouseY = "";
+let maxClicks = 3;
 canvas2.addEventListener("click", (e) => {
-  console.log("Bang!");
+  mouseX = e.clientX;
+  mouseY = e.clientY;
   clickActive = true;
-  console.log(clickActive);
-  ctx2.beginPath();
-  ctx2.arc(e.clientX, e.clientY, 10, 0, Math.PI * 2);
-  ctx2.fillStyle = `rgba(255,255,255)`;
-
-  ctx2.shadowColor = "#eee";
-  ctx2.shadowBlur = 20;
-  ctx2.shadowOffsetX = 0;
-  ctx2.shadowOffsetY = 0;
-  ctx2.fill();
-
-  console.log(e.clientX);
+  if (constellation.length < maxClicks) {
+    constellation.push(new ForegroundStar());
+    // console.log(constellation, count, `${count}`);
+    constellation[clickCount].draw();
+    clickCount = clickCount + 1;
+  } else if (clickCount == 3) {
+    for (let i = 3; i < 8; i++) {
+      console.log(i);
+      console.log(constellation);
+      mouseX = Math.floor(randomInt(0 + vw(10), window.innerWidth - vw(10)));
+      console.log(mouseX);
+      mouseY = randomInt(0 + vh(10), window.innerHeight - vh(10));
+      constellation.push(new ForegroundStar());
+      constellation[i].draw();
+    }
+    clickCount = clickCount + 1;
+    // canvas2.classList.add("spin");
+    // for (let i = 0; i < density; i++) {}
+  }
 });
 
 // track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
+
+// pick your own points to start and then create animation
+
+class ForegroundStar {
+  draw() {
+    // cross
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.translate(mouseX, mouseY);
+    ctx2.fillStyle = "rgba(255,255,255,0.3)";
+    ctx2.strokeStyle = "#fff";
+    ctx2.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx2.lineWidth = 4;
+    ctx2.rotate(`${spin}`);
+    ctx2.moveTo(0 - 75, 0);
+    ctx2.lineTo(0 + 75, 0);
+    ctx2.moveTo(0, 0 - 75);
+    ctx2.lineTo(0, 0 + 75);
+    ctx2.stroke();
+    ctx2.fill();
+    ctx2.closePath();
+    // ctx2.restore();
+
+    // star
+    ctx2.beginPath();
+    ctx2.fillStyle = "rgba(255,255,255,0.3)";
+    ctx2.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx2.lineWidth = 1;
+    ctx2.moveTo(0 - 50, 0); // Start right
+    ctx2.quadraticCurveTo(0, 0, 0, 0 - 50); // To top
+    ctx2.quadraticCurveTo(0, 0, 0 + 50, 0); // To left
+    ctx2.quadraticCurveTo(0, 0, 0, 0 + 50); // To bottom
+    ctx2.quadraticCurveTo(0, 0, 0 - 50, 0); // To right
+    ctx2.stroke();
+    ctx2.fill();
+    ctx2.closePath();
+    ctx2.restore();
+
+    // circle
+    ctx2.save();
+    ctx2.beginPath();
+
+    const gradient = ctx2.createRadialGradient(
+      mouseX,
+      mouseY,
+      15,
+      mouseX,
+      mouseY,
+      30
+    );
+
+    gradient.addColorStop(0, "#eee");
+    gradient.addColorStop(1, "rgba(255,255,255, 0");
+
+    // ctx2.fillStyle = `rgba(238,238,238, 1)`;
+    ctx2.fillStyle = gradient;
+    ctx2.strokeStyle = `rgba(255,255,255, 0.1)`;
+    ctx2.lineWidth = 5;
+
+    // ctx2.arc(mouseX, mouseY, `${randomInt(18, 30)}`, 0, Math.PI * 2);
+    ctx2.arc(mouseX, mouseY, `${randomInt(25, 40)}`, 0, Math.PI * 2);
+    ctx2.shadowColor = "#eee";
+    ctx2.shadowBlur = 50;
+    ctx2.shadowOffsetX = 0;
+    ctx2.shadowOffsetY = 0;
+
+    ctx2.stroke();
+    ctx2.fill();
+    ctx2.closePath();
+    ctx2.restore();
+  }
+}
