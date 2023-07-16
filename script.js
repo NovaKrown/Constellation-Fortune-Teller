@@ -170,13 +170,25 @@ class ForegroundStar {
     // this.circleMax = 40;
     // this.blurRadius = 50;
 
-    this.lineLength = vw(7);
-    this.starDesignRadius = vw(6);
-    this.gradientSmall = vw(0.5);
-    this.gradientLarge = vw(6);
-    this.circleMin = vw(2.5);
-    this.circleMax = vw(5);
-    this.blurRadius = vw(6);
+    if (window.innerWidth < window.innerHeight) {
+      this.lineLength = vw(7);
+      this.starDesignRadius = vw(6);
+      this.gradientSmall = vw(0.5);
+      this.gradientLarge = vw(6);
+      this.circleMin = vw(2.5);
+      this.circleMax = vw(5);
+      this.blurRadius = vw(6);
+    }
+
+    if (window.innerWidth > window.innerHeight) {
+      this.lineLength = vh(7);
+      this.starDesignRadius = vh(6);
+      this.gradientSmall = vh(0.5);
+      this.gradientLarge = vh(6);
+      this.circleMin = vh(2.5);
+      this.circleMax = vh(5);
+      this.blurRadius = vh(6);
+    }
   }
 
   draw() {
