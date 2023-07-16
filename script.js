@@ -161,6 +161,36 @@ canvas2.addEventListener("click", (e) => {
 // pick your own points to start and then create animation
 
 class ForegroundStar {
+  constructor() {
+    // this.lineLength = 75;
+    // this.starDesignRadius = 50;
+    // this.gradientSmall = 15;
+    // this.gradientLarge = 30;
+    // this.circleMin = 25;
+    // this.circleMax = 40;
+    // this.blurRadius = 50;
+
+    if (window.innerWidth < window.innerHeight) {
+      this.lineLength = vw(7);
+      this.starDesignRadius = vw(6);
+      this.gradientSmall = vw(0.5);
+      this.gradientLarge = vw(6);
+      this.circleMin = vw(2.5);
+      this.circleMax = vw(5);
+      this.blurRadius = vw(6);
+    }
+
+    if (window.innerWidth > window.innerHeight) {
+      this.lineLength = vh(7);
+      this.starDesignRadius = vh(6);
+      this.gradientSmall = vh(0.5);
+      this.gradientLarge = vh(6);
+      this.circleMin = vh(2.5);
+      this.circleMax = vh(5);
+      this.blurRadius = vh(6);
+    }
+  }
+
   draw() {
     // cross
     ctx2.save();
@@ -171,25 +201,25 @@ class ForegroundStar {
     ctx2.strokeStyle = "rgba(255,255,255,0.1)";
     ctx2.lineWidth = 4;
     ctx2.rotate(`${spin}`);
-    ctx2.moveTo(0 - 75, 0);
-    ctx2.lineTo(0 + 75, 0);
-    ctx2.moveTo(0, 0 - 75);
-    ctx2.lineTo(0, 0 + 75);
+    ctx2.moveTo(0 - this.lineLength, 0);
+    ctx2.lineTo(0 + this.lineLength, 0);
+    ctx2.moveTo(0, 0 - this.lineLength);
+    ctx2.lineTo(0, 0 + this.lineLength);
     ctx2.stroke();
     ctx2.fill();
     ctx2.closePath();
     // ctx2.restore();
 
-    // star
+    // starDesign
     ctx2.beginPath();
     ctx2.fillStyle = "rgba(255,255,255,0.3)";
     ctx2.strokeStyle = "rgba(255,255,255,0.1)";
     ctx2.lineWidth = 1;
-    ctx2.moveTo(0 - 50, 0); // Start right
-    ctx2.quadraticCurveTo(0, 0, 0, 0 - 50); // To top
-    ctx2.quadraticCurveTo(0, 0, 0 + 50, 0); // To left
-    ctx2.quadraticCurveTo(0, 0, 0, 0 + 50); // To bottom
-    ctx2.quadraticCurveTo(0, 0, 0 - 50, 0); // To right
+    ctx2.moveTo(0 - this.starDesignRadius, 0); // Start right
+    ctx2.quadraticCurveTo(0, 0, 0, 0 - this.starDesignRadius); // To top
+    ctx2.quadraticCurveTo(0, 0, 0 + this.starDesignRadius, 0); // To left
+    ctx2.quadraticCurveTo(0, 0, 0, 0 + this.starDesignRadius); // To bottom
+    ctx2.quadraticCurveTo(0, 0, 0 - this.starDesignRadius, 0); // To right
     ctx2.stroke();
     ctx2.fill();
     ctx2.closePath();
@@ -202,24 +232,31 @@ class ForegroundStar {
     const gradient = ctx2.createRadialGradient(
       mouseX,
       mouseY,
-      15,
+      this.gradientSmall,
       mouseX,
       mouseY,
-      30
+      this.gradientLarge
     );
 
-    gradient.addColorStop(0, "#eee");
+    gradient.addColorStop(0, "#fff");
     gradient.addColorStop(1, "rgba(255,255,255, 0");
 
     // ctx2.fillStyle = `rgba(238,238,238, 1)`;
     ctx2.fillStyle = gradient;
+
     ctx2.strokeStyle = `rgba(255,255,255, 0.1)`;
     ctx2.lineWidth = 5;
 
     // ctx2.arc(mouseX, mouseY, `${randomInt(18, 30)}`, 0, Math.PI * 2);
-    ctx2.arc(mouseX, mouseY, `${randomInt(25, 40)}`, 0, Math.PI * 2);
+    ctx2.arc(
+      mouseX,
+      mouseY,
+      `${randomInt(this.circleMin, this.circleMax)}`,
+      0,
+      Math.PI * 2
+    );
     ctx2.shadowColor = "#eee";
-    ctx2.shadowBlur = 50;
+    ctx2.shadowBlur = this.blurRadius;
     ctx2.shadowOffsetX = 0;
     ctx2.shadowOffsetY = 0;
 
@@ -229,3 +266,5 @@ class ForegroundStar {
     ctx2.restore();
   }
 }
+
+console.log(vw(3));
