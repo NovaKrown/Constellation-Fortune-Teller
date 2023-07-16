@@ -170,7 +170,7 @@ class ForegroundStar {
     // this.circleMax = 40;
     // this.blurRadius = 50;
 
-    this.lineLength = vw(6);
+    this.lineLength = vw(7);
     this.starDesignRadius = vw(6);
     this.gradientSmall = vw(0.5);
     this.gradientLarge = vw(6);
