@@ -37,8 +37,8 @@
 }
 
 .spin {
-  border: green 5px dashed;
-  animation: rotation 5s ease infinite;
+  /* border: green 5px dashed; */
+  animation: rotation 1s 0.5s ease-out;
 }
 
 @keyframes pulseSubtle {
