@@ -93,25 +93,6 @@ for (let i = 0; i < density; i++) {
   i < density / 33 ? starfield[i].draw2() : starfield[i].draw();
 }
 
-// console.log(starfield);
-
-// function animate() {
-//   ctx.fillStyle = "#000";
-//   ctx.fillRect(0, 0, canvas1.width, canvas1.height);
-//   for (let i = 0; i < density; i++) {
-//     starfield[i].draw();
-//     starfield[i].motion();
-//   }
-// }
-
-// function loop() {
-//   animate();
-
-//   window.requestAnimationFrame(loop);
-// }
-
-// loop();
-
 //////////////////////////////////////////////
 // Create Canvas 2 - interactive
 
@@ -131,29 +112,47 @@ let clickCount = 0;
 let mouseX = "";
 let mouseY = "";
 let maxClicks = 3;
-canvas2.addEventListener("click", (e) => {
+let maxStars = randomInt(maxClicks + 2, 9);
+
+canvas2.addEventListener("mousedown", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   clickActive = true;
-  if (constellation.length < maxClicks) {
+
+  console.log("clickCount", clickCount);
+
+  if (clickCount < maxClicks) {
     constellation.push(new ForegroundStar());
-    // console.log(constellation, count, `${count}`);
-    constellation[clickCount].draw();
-    clickCount = clickCount + 1;
-  } else if (clickCount == 3) {
-    for (let i = 3; i < 8; i++) {
-      console.log(i);
-      console.log(constellation);
-      mouseX = Math.floor(randomInt(0 + vw(10), window.innerWidth - vw(10)));
-      console.log(mouseX);
-      mouseY = randomInt(0 + vh(10), window.innerHeight - vh(10));
-      constellation.push(new ForegroundStar());
-      constellation[i].draw();
-    }
-    clickCount = clickCount + 1;
-    // canvas2.classList.add("spin");
-    // for (let i = 0; i < density; i++) {}
   }
+});
+
+canvas2.addEventListener("mouseup", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  if (clickCount < maxClicks) {
+    constellation[constellation.length - 1].draw();
+    console.log(`drawing, ${constellation.length - 1}`);
+  }
+
+  if (clickCount === maxClicks) {
+    console.log("maxed!");
+    for (let i = maxClicks; i < maxStars; i++) {
+      setTimeout(() => {
+        mouseX = Math.floor(randomInt(0 + vw(15), window.innerWidth - vw(15)));
+        mouseY = randomInt(0 + vh(15), window.innerHeight - vh(15));
+        constellation.push(new ForegroundStar());
+        // console.log(clickCount);
+        constellation[i].draw();
+        // console.log(`drawing ${i}`);
+        // console.log(constellation);
+      }, (i - maxClicks) * 500);
+    }
+  }
+
+  clickCount = clickCount + 1;
+
+  clickActive = false;
 });
 
 // track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
@@ -162,57 +161,66 @@ canvas2.addEventListener("click", (e) => {
 
 class ForegroundStar {
   constructor() {
-    // this.lineLength = 75;
-    // this.starDesignRadius = 50;
-    // this.gradientSmall = 15;
-    // this.gradientLarge = 30;
-    // this.circleMin = 25;
-    // this.circleMax = 40;
-    // this.blurRadius = 50;
-
     if (window.innerWidth < window.innerHeight) {
-      this.lineLength = vw(7);
       this.starDesignRadius = vw(6);
       this.gradientSmall = vw(0.5);
       this.gradientLarge = vw(6);
-      this.circleMin = vw(2.5);
+      this.circleMin = vw(3.5);
       this.circleMax = vw(5);
       this.blurRadius = vw(6);
+      this.opacity1 = 0.3;
+      this.opacity2 = 0.1;
+      this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
+      this.lineLength = this.circleRadius * 3;
     }
 
     if (window.innerWidth > window.innerHeight) {
-      this.lineLength = vh(7);
       this.starDesignRadius = vh(6);
       this.gradientSmall = vh(0.5);
       this.gradientLarge = vh(6);
-      this.circleMin = vh(2.5);
+      this.circleMin = vh(3.5);
       this.circleMax = vh(5);
       this.blurRadius = vh(6);
+      this.opacity1 = 0.3;
+      this.opacity2 = 0.1;
+      this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
+      this.lineLength = this.circleRadius * 3;
     }
   }
 
   draw() {
+    const gradient = ctx2.createRadialGradient(
+      mouseX,
+      mouseY,
+      this.gradientSmall,
+      mouseX,
+      mouseY,
+      this.gradientLarge
+    );
+
+    // console.log(this.circleRadius);
+
     // cross
     ctx2.save();
     ctx2.beginPath();
     ctx2.translate(mouseX, mouseY);
-    ctx2.fillStyle = "rgba(255,255,255,0.3)";
-    ctx2.strokeStyle = "#fff";
-    ctx2.strokeStyle = "rgba(255,255,255,0.1)";
-    ctx2.lineWidth = 4;
+    // ctx2.fillStyle = `rgba(255,255,255,${this.opacity1})`;
+    // ctx2.strokeStyle = "#fff";
+    ctx2.strokeStyle = `rgba(255,255,255,${this.opacity1})`;
+    ctx2.lineWidth = 1;
     ctx2.rotate(`${spin}`);
     ctx2.moveTo(0 - this.lineLength, 0);
     ctx2.lineTo(0 + this.lineLength, 0);
     ctx2.moveTo(0, 0 - this.lineLength);
     ctx2.lineTo(0, 0 + this.lineLength);
     ctx2.stroke();
-    ctx2.fill();
+    // ctx2.fill();
     ctx2.closePath();
     // ctx2.restore();
 
     // starDesign
     ctx2.beginPath();
-    ctx2.fillStyle = "rgba(255,255,255,0.3)";
+    ctx2.fillStyle = "rgba(255,255,255,0.5)";
     ctx2.strokeStyle = "rgba(255,255,255,0.1)";
     ctx2.lineWidth = 1;
     ctx2.moveTo(0 - this.starDesignRadius, 0); // Start right
@@ -229,15 +237,6 @@ class ForegroundStar {
     ctx2.save();
     ctx2.beginPath();
 
-    const gradient = ctx2.createRadialGradient(
-      mouseX,
-      mouseY,
-      this.gradientSmall,
-      mouseX,
-      mouseY,
-      this.gradientLarge
-    );
-
     gradient.addColorStop(0, "#fff");
     gradient.addColorStop(1, "rgba(255,255,255, 0");
 
@@ -248,13 +247,7 @@ class ForegroundStar {
     ctx2.lineWidth = 5;
 
     // ctx2.arc(mouseX, mouseY, `${randomInt(18, 30)}`, 0, Math.PI * 2);
-    ctx2.arc(
-      mouseX,
-      mouseY,
-      `${randomInt(this.circleMin, this.circleMax)}`,
-      0,
-      Math.PI * 2
-    );
+    ctx2.arc(mouseX, mouseY, this.circleRadius, 0, Math.PI * 2);
     ctx2.shadowColor = "#eee";
     ctx2.shadowBlur = this.blurRadius;
     ctx2.shadowOffsetX = 0;
@@ -264,6 +257,10 @@ class ForegroundStar {
     ctx2.fill();
     ctx2.closePath();
     ctx2.restore();
+  }
+
+  animate() {
+    console.log("animating...");
   }
 }
 
