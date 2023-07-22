@@ -279,6 +279,7 @@ let clickStart = (e) => {
 let clickEnd = (e) => {
   animationEnd();
 
+  // draw the stars chosen by user
   if (clickCount < maxClicks) {
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 
@@ -289,6 +290,7 @@ let clickEnd = (e) => {
     }
   }
 
+  // draw the stars chosen randomly
   if (clickCount === maxClicks) {
     for (let i = maxClicks; i < maxStars; i++) {
       setTimeout(() => {
@@ -296,6 +298,10 @@ let clickEnd = (e) => {
         mouseY = randomInt(0 + vh(15), window.innerHeight - vh(15));
         constellation.push(new ForegroundStar());
         constellation[i].draw();
+        // console.log(i);
+        storeClicks[`mouseX${i}`] = e.clientX;
+        storeClicks[`mouseY${i}`] = e.clientY;
+        // console.log(storeClicks);
       }, (i - maxClicks) * 500);
     }
   }
