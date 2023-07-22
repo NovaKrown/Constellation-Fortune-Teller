@@ -109,65 +109,10 @@ canvas2.height = window.innerHeight - 10;
 canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
 
-//////////////////////////////////////////////
-// Create Click Event
-
-let clickActive = false;
-
-let clickCount = 0;
-let mouseX = "";
-let mouseY = "";
-let maxClicks = 3;
-let maxStars = randomInt(maxClicks + 2, maxClicks + 10);
-
-let clickStart = (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-
-  console.log("clickCount", clickCount);
-
-  if (clickCount < maxClicks) {
-    constellation.push(new ForegroundStar());
-    constellation[constellation.length - 1].animate();
-  }
-
-  clickActive = true;
-};
-
-let clickEnd = (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-
-  if (clickCount < maxClicks) {
-    constellation[constellation.length - 1].draw();
-    console.log(`drawing, ${constellation.length - 1}`);
-  }
-
-  if (clickCount === maxClicks) {
-    console.log("maxed!");
-    for (let i = maxClicks; i < maxStars; i++) {
-      setTimeout(() => {
-        mouseX = Math.floor(randomInt(0 + vw(15), window.innerWidth - vw(15)));
-        mouseY = randomInt(0 + vh(15), window.innerHeight - vh(15));
-        constellation.push(new ForegroundStar());
-        constellation[i].draw();
-      }, (i - maxClicks) * 500);
-    }
-  }
-
-  clickCount = clickCount + 1;
-  clickActive = false;
-};
-
-canvas2.addEventListener("mousedown", (e) => clickStart(e));
-canvas2.addEventListener("touchstart", (e) => clickStart(e));
-canvas2.addEventListener("mouseup", (e) => clickEnd(e));
-canvas2.addEventListener("touchend", (e) => clickEnd(e));
-
 // track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
 
 class ForegroundStar {
-  constructor() {
+  constructor(x = mouseX, y = mouseY) {
     if (window.innerWidth < window.innerHeight) {
       this.starDesignRadius = vw(6);
       this.gradientSmall = vw(0.5);
@@ -259,22 +204,107 @@ class ForegroundStar {
     ctx2.closePath();
     ctx2.restore();
   }
-
-  animate() {
-    requestAnimationFrame(animate);
-    console.log("animating...");
-    ctx2.save();
-    ctx2.beginPath();
-    ctx2.translate(mouseX, mouseY);
-    ctx2.strokeStyle = `rgba(${colorOuter},${this.opacity1})`;
-    ctx2.lineWidth = 1;
-    ctx2.rotate(`${spin}`);
-    ctx2.moveTo(0, 0);
-    ctx2.lineTo(this.lineGrowth, 0);
-    ctx2.stroke();
-    ctx2.closePath();
-    ctx2.restore();
-
-    this.lineGrowth = this.lineGrowth + 0.1;
-  }
 }
+
+//////////////////////////////////////////////
+// Long Click Animation
+
+let lineStretch = 1;
+const animate = () => {
+  ani = requestAnimationFrame(animate);
+  // console.log("animating...");
+  // console.log(lineStretch);
+  ctx2.save();
+  ctx2.beginPath();
+  ctx2.translate(mouseX, mouseY);
+  ctx2.strokeStyle = `rgba(${colorOuter},1)`;
+  ctx2.lineWidth = 0.1;
+  ctx2.rotate(`${spin}`);
+  ctx2.moveTo(0, 0);
+  ctx2.lineTo(10 + lineStretch, 0);
+  ctx2.moveTo(0, 0);
+  ctx2.lineTo(-10 - lineStretch, 0);
+  ctx2.moveTo(0, 0);
+  ctx2.lineTo(0, 10 + lineStretch);
+  ctx2.moveTo(0, 0);
+  ctx2.lineTo(0, -10 - lineStretch);
+  ctx2.stroke();
+  ctx2.closePath();
+  ctx2.restore();
+
+  if (
+    lineStretch <
+    (canvas2.width > canvas1.height ? canvas1.width : canvas1.height)
+  ) {
+    lineStretch = lineStretch * 1.3;
+  }
+};
+
+const animationEnd = () => {
+  cancelAnimationFrame(ani);
+  // console.log("clear");
+  // ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+};
+
+//////////////////////////////////////////////
+// Create Click Event
+
+let clickActive = false;
+
+let clickCount = 0;
+let mouseX = "";
+let mouseY = "";
+let maxClicks = 3;
+let maxStars = randomInt(maxClicks + 2, maxClicks + 10);
+
+let storeClicks = {};
+
+let clickStart = (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  lineStretch = 1;
+
+  // console.log("clickCount", clickCount);
+
+  if (clickCount < maxClicks) {
+    constellation.push(new ForegroundStar());
+    animate();
+    storeClicks[`mouseX${clickCount}`] = e.clientX;
+    storeClicks[`mouseY${clickCount}`] = e.clientY;
+  }
+
+  clickActive = true;
+};
+
+let clickEnd = (e) => {
+  animationEnd();
+
+  if (clickCount < maxClicks) {
+    ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+    for (let i = 0; i < clickCount + 1; i++) {
+      mouseX = storeClicks[`mouseX${i}`];
+      mouseY = storeClicks[`mouseY${i}`];
+      constellation[i].draw();
+    }
+  }
+
+  if (clickCount === maxClicks) {
+    for (let i = maxClicks; i < maxStars; i++) {
+      setTimeout(() => {
+        mouseX = Math.floor(randomInt(0 + vw(15), window.innerWidth - vw(15)));
+        mouseY = randomInt(0 + vh(15), window.innerHeight - vh(15));
+        constellation.push(new ForegroundStar());
+        constellation[i].draw();
+      }, (i - maxClicks) * 500);
+    }
+  }
+
+  clickCount = clickCount + 1;
+  clickActive = false;
+};
+
+canvas2.addEventListener("mousedown", (e) => clickStart(e));
+canvas2.addEventListener("touchstart", (e) => clickStart(e));
+canvas2.addEventListener("mouseup", (e) => clickEnd(e));
+canvas2.addEventListener("touchend", (e) => clickEnd(e));
