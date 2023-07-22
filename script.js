@@ -1,3 +1,5 @@
+// import utility from utility.js;
+
 //////////////////////////////////////////////
 // Utility
 
@@ -27,6 +29,10 @@ console.log("Density", density);
 
 const vw = (percent) => (percent * window.innerWidth) / 100;
 const vh = (percent) => (percent * window.innerHeight) / 100;
+
+// let colorA = "255,255,255";
+let colorInner = "249, 214, 79";
+let colorOuter = "239, 80, 0";
 
 // Find Center
 // ctx.beginPath();
@@ -112,21 +118,23 @@ let clickCount = 0;
 let mouseX = "";
 let mouseY = "";
 let maxClicks = 3;
-let maxStars = randomInt(maxClicks + 2, maxClicks + 9);
+let maxStars = randomInt(maxClicks + 2, maxClicks + 10);
 
-canvas2.addEventListener("mousedown", (e) => {
+let clickStart = (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
-  clickActive = true;
 
   console.log("clickCount", clickCount);
 
   if (clickCount < maxClicks) {
     constellation.push(new ForegroundStar());
+    constellation[constellation.length - 1].animate();
   }
-});
 
-canvas2.addEventListener("mouseup", (e) => {
+  clickActive = true;
+};
+
+let clickEnd = (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
 
@@ -142,22 +150,21 @@ canvas2.addEventListener("mouseup", (e) => {
         mouseX = Math.floor(randomInt(0 + vw(15), window.innerWidth - vw(15)));
         mouseY = randomInt(0 + vh(15), window.innerHeight - vh(15));
         constellation.push(new ForegroundStar());
-        // console.log(clickCount);
         constellation[i].draw();
-        // console.log(`drawing ${i}`);
-        // console.log(constellation);
       }, (i - maxClicks) * 500);
     }
   }
 
   clickCount = clickCount + 1;
-
   clickActive = false;
-});
+};
+
+canvas2.addEventListener("mousedown", (e) => clickStart(e));
+canvas2.addEventListener("touchstart", (e) => clickStart(e));
+canvas2.addEventListener("mouseup", (e) => clickEnd(e));
+canvas2.addEventListener("touchend", (e) => clickEnd(e));
 
 // track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
-
-// pick your own points to start and then create animation
 
 class ForegroundStar {
   constructor() {
@@ -172,6 +179,7 @@ class ForegroundStar {
       this.opacity2 = 0.1;
       this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
       this.lineLength = this.circleRadius * 3;
+      this.lineGrowth = 0;
     }
 
     if (window.innerWidth > window.innerHeight) {
@@ -185,6 +193,7 @@ class ForegroundStar {
       this.opacity2 = 0.1;
       this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
       this.lineLength = this.circleRadius * 3;
+      this.lineGrowth = 100;
     }
   }
 
@@ -198,15 +207,11 @@ class ForegroundStar {
       this.gradientLarge
     );
 
-    // console.log(this.circleRadius);
-
     // cross
     ctx2.save();
     ctx2.beginPath();
     ctx2.translate(mouseX, mouseY);
-    // ctx2.fillStyle = `rgba(255,255,255,${this.opacity1})`;
-    // ctx2.strokeStyle = "#fff";
-    ctx2.strokeStyle = `rgba(255,255,255,${this.opacity1})`;
+    ctx2.strokeStyle = `rgba(${colorOuter},${this.opacity1})`;
     ctx2.lineWidth = 1;
     ctx2.rotate(`${spin}`);
     ctx2.moveTo(0 - this.lineLength, 0);
@@ -214,14 +219,12 @@ class ForegroundStar {
     ctx2.moveTo(0, 0 - this.lineLength);
     ctx2.lineTo(0, 0 + this.lineLength);
     ctx2.stroke();
-    // ctx2.fill();
     ctx2.closePath();
-    // ctx2.restore();
 
     // starDesign
     ctx2.beginPath();
-    ctx2.fillStyle = "rgba(255,255,255,0.5)";
-    ctx2.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx2.fillStyle = `rgba(${colorInner},0.5)`;
+    ctx2.strokeStyle = `rgba(${colorOuter},0.1)`;
     ctx2.lineWidth = 1;
     ctx2.moveTo(0 - this.starDesignRadius, 0); // Start right
     ctx2.quadraticCurveTo(0, 0, 0, 0 - this.starDesignRadius); // To top
@@ -237,18 +240,16 @@ class ForegroundStar {
     ctx2.save();
     ctx2.beginPath();
 
-    gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(1, "rgba(255,255,255, 0");
+    gradient.addColorStop(0, `rgba(${colorInner}, 1)`);
+    gradient.addColorStop(1, `rgba(${colorOuter}, 0)`);
 
-    // ctx2.fillStyle = `rgba(238,238,238, 1)`;
     ctx2.fillStyle = gradient;
 
-    ctx2.strokeStyle = `rgba(255,255,255, 0.1)`;
+    ctx2.strokeStyle = `rgba(${colorOuter}, 0.1)`;
     ctx2.lineWidth = 5;
 
-    // ctx2.arc(mouseX, mouseY, `${randomInt(18, 30)}`, 0, Math.PI * 2);
     ctx2.arc(mouseX, mouseY, this.circleRadius, 0, Math.PI * 2);
-    ctx2.shadowColor = "#eee";
+    ctx2.shadowColor = `rgba(${colorOuter}, 1)`;
     ctx2.shadowBlur = this.blurRadius;
     ctx2.shadowOffsetX = 0;
     ctx2.shadowOffsetY = 0;
@@ -260,8 +261,20 @@ class ForegroundStar {
   }
 
   animate() {
+    requestAnimationFrame(animate);
     console.log("animating...");
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.translate(mouseX, mouseY);
+    ctx2.strokeStyle = `rgba(${colorOuter},${this.opacity1})`;
+    ctx2.lineWidth = 1;
+    ctx2.rotate(`${spin}`);
+    ctx2.moveTo(0, 0);
+    ctx2.lineTo(this.lineGrowth, 0);
+    ctx2.stroke();
+    ctx2.closePath();
+    ctx2.restore();
+
+    this.lineGrowth = this.lineGrowth + 0.1;
   }
 }
-
-console.log(vw(3));
