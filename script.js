@@ -112,7 +112,7 @@ let clickCount = 0;
 let mouseX = "";
 let mouseY = "";
 let maxClicks = 3;
-let maxStars = randomInt(maxClicks + 2, 9);
+let maxStars = randomInt(maxClicks + 2, maxClicks + 9);
 
 canvas2.addEventListener("mousedown", (e) => {
   mouseX = e.clientX;
