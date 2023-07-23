@@ -310,7 +310,9 @@ let clickEnd = (e) => {
   clickActive = false;
 };
 
-canvas2.addEventListener("mousedown", (e) => clickStart(e));
-canvas2.addEventListener("touchstart", (e) => clickStart(e));
-canvas2.addEventListener("mouseup", (e) => clickEnd(e));
-canvas2.addEventListener("touchend", (e) => clickEnd(e));
+// canvas2.addEventListener("mousedown", (e) => clickStart(e));
+// canvas2.addEventListener("touchstart", (e) => clickStart(e));
+// canvas2.addEventListener("mouseup", (e) => clickEnd(e));
+// canvas2.addEventListener("touchend", (e) => clickEnd(e));
+canvas2.addEventListener("pointerdown", (e) => clickStart(e));
+canvas2.addEventListener("pointerup", (e) => clickEnd(e));
