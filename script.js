@@ -1,5 +1,3 @@
-// import utility from utility.js;
-
 //////////////////////////////////////////////
 // Utility
 
@@ -30,16 +28,8 @@ console.log("Density", density);
 const vw = (percent) => (percent * window.innerWidth) / 100;
 const vh = (percent) => (percent * window.innerHeight) / 100;
 
-// let colorA = "255,255,255";
 let colorInner = "249, 214, 79";
 let colorOuter = "239, 80, 0";
-
-// Find Center
-// ctx.beginPath();
-// ctx.fillStyle = `#700`;
-// ctx.arc(centerToCorner, centerToCorner, 10, 0, Math.PI * 2);
-// ctx.fill();
-// ctx.closePath();
 
 //////////////////////////////////////////////
 // Create Canvas 1
@@ -95,7 +85,6 @@ class BackgroundStar {
 // Populate Starfield
 for (let i = 0; i < density; i++) {
   starfield[i] = new BackgroundStar();
-  // console.log(density / 30);
   i < density / 33 ? starfield[i].draw2() : starfield[i].draw();
 }
 
@@ -108,8 +97,6 @@ canvas2.width = window.innerWidth - 10;
 canvas2.height = window.innerHeight - 10;
 canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
-
-// track if click active, increase counter, expand radius, limit radius to percentage of width or height whichever is smaller
 
 class ForegroundStar {
   constructor(x = mouseX, y = mouseY) {
@@ -208,12 +195,10 @@ class ForegroundStar {
 
 //////////////////////////////////////////////
 // Long Click Animation
-
+let ani;
 let lineStretch = 1;
 const animate = () => {
   ani = requestAnimationFrame(animate);
-  // console.log("animating...");
-  // console.log(lineStretch);
   ctx2.save();
   ctx2.beginPath();
   ctx2.translate(mouseX, mouseY);
@@ -242,7 +227,6 @@ const animate = () => {
 
 const animationEnd = () => {
   cancelAnimationFrame(ani);
-  // console.log("clear");
   // ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 };
 
@@ -263,8 +247,6 @@ let clickStart = (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   lineStretch = 1;
-
-  // console.log("clickCount", clickCount);
 
   if (clickCount < maxClicks) {
     constellation.push(new ForegroundStar());
@@ -301,7 +283,6 @@ let clickEnd = (e) => {
         // console.log(i);
         storeClicks[`mouseX${i}`] = e.clientX;
         storeClicks[`mouseY${i}`] = e.clientY;
-        // console.log(storeClicks);
       }, (i - maxClicks) * 500);
     }
   }
@@ -310,9 +291,5 @@ let clickEnd = (e) => {
   clickActive = false;
 };
 
-// canvas2.addEventListener("mousedown", (e) => clickStart(e));
-// canvas2.addEventListener("touchstart", (e) => clickStart(e));
-// canvas2.addEventListener("mouseup", (e) => clickEnd(e));
-// canvas2.addEventListener("touchend", (e) => clickEnd(e));
 canvas2.addEventListener("pointerdown", (e) => clickStart(e));
 canvas2.addEventListener("pointerup", (e) => clickEnd(e));
