@@ -4,11 +4,12 @@
 const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1) + min);
 
+const pythag = (a, b) => Math.sqrt(a ** 2 + b ** 2);
+
 let centerX = window.innerWidth / 2;
 let centerY = window.innerHeight / 2;
-let centerToCorner = Math.floor(
-  Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2))
-);
+let centerToCorner = pythag(centerX, centerY);
+
 let starfield = [];
 let constellation = [];
 let size = 1;
@@ -48,7 +49,6 @@ class BackgroundStar {
     this.y = Math.random() * canvas1.height;
     this.z = Math.random() + size;
     this.dim = randomInt(0.5, 1);
-    // this.direction = "up";
     this.special = `rgb(${randomInt(150, 255)},${randomInt(
       150,
       200
@@ -98,51 +98,41 @@ canvas2.height = window.innerHeight - 10;
 canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
 
+let aspect = window.innerWidth < window.innerHeight ? vw : vh;
 class ForegroundStar {
-  constructor(x = mouseX, y = mouseY) {
-    if (window.innerWidth < window.innerHeight) {
-      this.starDesignRadius = vw(6);
-      this.gradientSmall = vw(0.5);
-      this.gradientLarge = vw(6);
-      this.circleMin = vw(3.5);
-      this.circleMax = vw(5);
-      this.blurRadius = vw(6);
-      this.opacity1 = 0.3;
-      this.opacity2 = 0.1;
-      this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
-      this.lineLength = this.circleRadius * 3;
-      this.lineGrowth = 0;
-    }
+  constructor(i) {
+    this.star = i;
+    this.x = mouseX;
+    this.y = mouseY;
 
-    if (window.innerWidth > window.innerHeight) {
-      this.starDesignRadius = vh(6);
-      this.gradientSmall = vh(0.5);
-      this.gradientLarge = vh(6);
-      this.circleMin = vh(3.5);
-      this.circleMax = vh(5);
-      this.blurRadius = vh(6);
-      this.opacity1 = 0.3;
-      this.opacity2 = 0.1;
-      this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
-      this.lineLength = this.circleRadius * 3;
-      this.lineGrowth = 100;
-    }
+    this.location = Math.floor(pythag(this.x, this.y));
+    this.starDesignRadius = aspect(6);
+    this.gradientSmall = aspect(0.5);
+    this.gradientLarge = aspect(6);
+    this.circleMin = aspect(3.5);
+    this.circleMax = aspect(5);
+    this.blurRadius = aspect(6);
+    this.opacity1 = 0.3;
+    this.opacity2 = 0.1;
+    this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
+    this.lineLength = this.circleRadius * 3;
+    this.lineGrowth = 10;
   }
 
   draw() {
     const gradient = ctx2.createRadialGradient(
-      mouseX,
-      mouseY,
+      this.x,
+      this.y,
       this.gradientSmall,
-      mouseX,
-      mouseY,
+      this.x,
+      this.y,
       this.gradientLarge
     );
 
     // cross
     ctx2.save();
     ctx2.beginPath();
-    ctx2.translate(mouseX, mouseY);
+    ctx2.translate(this.x, this.y);
     ctx2.strokeStyle = `rgba(${colorOuter},${this.opacity1})`;
     ctx2.lineWidth = 1;
     ctx2.rotate(`${spin}`);
@@ -180,7 +170,7 @@ class ForegroundStar {
     ctx2.strokeStyle = `rgba(${colorOuter}, 0.1)`;
     ctx2.lineWidth = 5;
 
-    ctx2.arc(mouseX, mouseY, this.circleRadius, 0, Math.PI * 2);
+    ctx2.arc(this.x, this.y, this.circleRadius, 0, Math.PI * 2);
     ctx2.shadowColor = `rgba(${colorOuter}, 1)`;
     ctx2.shadowBlur = this.blurRadius;
     ctx2.shadowOffsetX = 0;
@@ -203,7 +193,7 @@ const animate = () => {
   ctx2.beginPath();
   ctx2.translate(mouseX, mouseY);
   ctx2.strokeStyle = `rgba(${colorOuter},1)`;
-  ctx2.lineWidth = 0.1;
+  ctx2.lineWidth = 1;
   ctx2.rotate(`${spin}`);
   ctx2.moveTo(0, 0);
   ctx2.lineTo(10 + lineStretch, 0);
@@ -221,13 +211,12 @@ const animate = () => {
     lineStretch <
     (canvas2.width > canvas1.height ? canvas1.width : canvas1.height)
   ) {
-    lineStretch = lineStretch * 1.3;
+    lineStretch = lineStretch * 1.1;
   }
 };
 
 const animationEnd = () => {
   cancelAnimationFrame(ani);
-  // ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 };
 
 //////////////////////////////////////////////
@@ -239,9 +228,7 @@ let clickCount = 0;
 let mouseX = "";
 let mouseY = "";
 let maxClicks = 3;
-let maxStars = randomInt(maxClicks + 2, maxClicks + 10);
-
-let storeClicks = {};
+let maxStars = randomInt(maxClicks + 2, maxClicks + 7);
 
 let clickStart = (e) => {
   mouseX = e.clientX;
@@ -251,8 +238,6 @@ let clickStart = (e) => {
   if (clickCount < maxClicks) {
     constellation.push(new ForegroundStar());
     animate();
-    storeClicks[`mouseX${clickCount}`] = e.clientX;
-    storeClicks[`mouseY${clickCount}`] = e.clientY;
   }
 
   clickActive = true;
@@ -266,24 +251,39 @@ let clickEnd = (e) => {
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 
     for (let i = 0; i < clickCount + 1; i++) {
-      mouseX = storeClicks[`mouseX${i}`];
-      mouseY = storeClicks[`mouseY${i}`];
+      constellation[i].star = i;
       constellation[i].draw();
     }
   }
 
   // draw the stars chosen randomly
   if (clickCount === maxClicks) {
-    for (let i = maxClicks; i < maxStars; i++) {
-      setTimeout(() => {
+    for (let i = maxClicks; i <= maxStars; i++) {
+      let plot = () => {
         mouseX = Math.floor(randomInt(0 + vw(15), window.innerWidth - vw(15)));
-        mouseY = randomInt(0 + vh(15), window.innerHeight - vh(15));
-        constellation.push(new ForegroundStar());
+        mouseY = Math.floor(randomInt(0 + vh(15), window.innerHeight - vh(15)));
+        const location = pythag(mouseX, mouseY);
+
+        for (let j = 0; j < constellation.length; j++) {
+          // console.log(constellation[j].location);
+          if (Math.abs(location - constellation[j].location) < aspect(8)) {
+            // console.log("Bonk!");
+            // console.log(Math.abs(location - constellation[j].location));
+            plot();
+          }
+        }
+      };
+      plot();
+
+      constellation.push(new ForegroundStar());
+      setTimeout(() => {
+        constellation[i].star = i;
         constellation[i].draw();
-        // console.log(i);
-        storeClicks[`mouseX${i}`] = e.clientX;
-        storeClicks[`mouseY${i}`] = e.clientY;
       }, (i - maxClicks) * 500);
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // create an await function that calls createJoints after the setTimeout
+      // loop through the connectors array and create new Connection
     }
   }
 
@@ -293,3 +293,63 @@ let clickEnd = (e) => {
 
 canvas2.addEventListener("pointerdown", (e) => clickStart(e));
 canvas2.addEventListener("pointerup", (e) => clickEnd(e));
+
+// create the lines connecting
+
+class Connection {
+  constructor(x1, y1, x2, y2) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+  }
+
+  draw() {
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.translate(this.x, this.y);
+    ctx2.strokeStyle = `rgba(${colorOuter},${this.opacity1})`;
+    ctx2.lineWidth = 1;
+    ctx2.rotate(`${spin}`);
+    ctx2.moveTo(x1, y1);
+    ctx2.lineTo(x2, y2);
+    ctx2.stroke();
+    ctx2.closePath();
+    ctx2.restore();
+  }
+}
+
+let connectors = [];
+
+let createJoints = () => {
+  for (let index = 0; index < constellation.length - 1; index++) {
+    connectors.push({
+      x1: `${constellation[index].x}`,
+      y1: `${constellation[index].y}`,
+      x2: constellation.at(index + 1).x,
+      y2: constellation.at(index + 1).y,
+      // x2: `${constellation[`${index + 1}`].x}`,
+      // y2: `${constellation[index].y}`,
+    });
+    console.log(connectors);
+  }
+
+  // connectors.push(
+  //   new Connection(constellation[index].x, constellation[index].y)
+  // );
+
+  // for (let i = index + 1; i < constellation.length; i++) {
+  //   connectors.push(
+  //     new Connection(
+  //       constellation[i].x,
+  //       constellation[i].y,
+  //       constellation[i - 1].x,
+  //       constellation[i - 1].y
+  //     )
+  //   );
+  // }
+};
+
+// for (let index = 0; index < connectors.length; index++) {
+//   console.log(connectors[index]);
+// }
