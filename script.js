@@ -12,7 +12,6 @@ let centerToCorner = pythag(centerX, centerY);
 
 let starfield = [];
 let constellation = [];
-let size = 1;
 let spin = randomInt(0, 3.14);
 let density =
   window.innerWidth < window.innerHeight
@@ -45,9 +44,11 @@ const ctx = canvas1.getContext("2d");
 // Create Background
 class BackgroundStar {
   constructor() {
+    this.type;
+    this.size = 1;
     this.x = Math.random() * canvas1.width;
     this.y = Math.random() * canvas1.height;
-    this.z = Math.random() + size;
+    this.radius = Math.random() + this.size;
     this.dim = randomInt(0.5, 1);
     this.special = `rgb(${randomInt(150, 255)},${randomInt(
       150,
@@ -56,27 +57,29 @@ class BackgroundStar {
   }
 
   // White Stars
-  draw() {
+  draw(type) {
+    this.type = type;
     ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(255,255,255,${this.dim})`;
-    ctx.arc(this.x, this.y, this.z, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
 
   // Rare Stars
-  draw2() {
+  draw2(type) {
+    this.type = type;
     // star shadow
     ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius + 3, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(255,255,255,0.1)";
-    ctx.arc(this.x, this.y, this.z + 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
 
     // star body
     ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius + 1, 0, Math.PI * 2);
     ctx.fillStyle = this.special;
-    ctx.arc(this.x, this.y, this.z + 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
@@ -85,7 +88,7 @@ class BackgroundStar {
 // Populate Starfield
 for (let i = 0; i < density; i++) {
   starfield[i] = new BackgroundStar();
-  i < density / 33 ? starfield[i].draw2() : starfield[i].draw();
+  i < density / 33 ? starfield[i].draw2("rare") : starfield[i].draw("white");
 }
 
 //////////////////////////////////////////////
@@ -99,12 +102,12 @@ canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
 
 let aspect = window.innerWidth < window.innerHeight ? vw : vh;
-class ForegroundStar {
-  constructor(i) {
-    this.star = i;
-    this.x = mouseX;
-    this.y = mouseY;
 
+class ForegroundStar {
+  constructor(i, x = mouseX, y = mouseY) {
+    this.star = i;
+    this.x = x;
+    this.y = y;
     this.location = Math.floor(pythag(this.x, this.y));
     this.starDesignRadius = aspect(6);
     this.gradientSmall = aspect(0.5);
@@ -224,11 +227,14 @@ const animationEnd = () => {
 
 let clickActive = false;
 
-let clickCount = 0;
 let mouseX = "";
 let mouseY = "";
+let clickCount = 0;
 let maxClicks = 3;
-let maxStars = randomInt(maxClicks + 2, maxClicks + 7);
+let starNumber = 0;
+let maxStars = 7;
+let clickFull = false;
+// randomInt(maxClicks + 2, maxClicks + 7);
 
 let clickStart = (e) => {
   mouseX = e.clientX;
@@ -240,11 +246,18 @@ let clickStart = (e) => {
     animate();
   }
 
+  if (clickCount === 3) clickFull = true;
+
   clickActive = true;
 };
 
+// BUG:
+// if they are within spaceBetween of each other remove first one
+
 let clickEnd = (e) => {
   animationEnd();
+
+  let fault = 0;
 
   // draw the stars chosen by user
   if (clickCount < maxClicks) {
@@ -254,41 +267,85 @@ let clickEnd = (e) => {
       constellation[i].star = i;
       constellation[i].draw();
     }
+    clickCount += 1;
+    starNumber += 1;
   }
 
-  // draw the stars chosen randomly
-  if (clickCount === maxClicks) {
-    for (let i = maxClicks; i <= maxStars; i++) {
-      let plot = () => {
-        mouseX = Math.floor(randomInt(0 + vw(15), window.innerWidth - vw(15)));
-        mouseY = Math.floor(randomInt(0 + vh(15), window.innerHeight - vh(15)));
-        const location = pythag(mouseX, mouseY);
+  // if (clickCount > maxClicks && starNumber < maxStars) {
+  if (clickFull && starNumber < maxStars) {
+    // draw the stars chosen randomly
 
-        for (let j = 0; j < constellation.length; j++) {
-          // console.log(constellation[j].location);
-          if (Math.abs(location - constellation[j].location) < aspect(8)) {
-            // console.log("Bonk!");
-            // console.log(Math.abs(location - constellation[j].location));
-            plot();
+    const spaceBetweenStars = aspect(5);
+    console.log(spaceBetweenStars);
+
+    for (let i = maxClicks; i < maxStars; i++) {
+      // for (let i = maxClicks; i < maxStars; i++) {
+      fault += 1;
+      if (fault == 50) {
+        console.log("break!");
+        break;
+      }
+      let w = window.innerWidth > window.innerHeight ? 3 : 10;
+      let h = window.innerHeight < window.innerWidth ? 8 : 4;
+
+      // ctx2.save();
+      // ctx2.beginPath();
+      // ctx2.fillStyle = "#ff8833";
+      // ctx2.rect(vw(w), vh(h), 200, 200);
+      // ctx2.fill();
+      // ctx2.closePath();
+      // ctx2.restore();
+
+      randomX = Math.floor(randomInt(0 + vw(w), window.innerWidth - vw(w)));
+      randomY = Math.floor(randomInt(0 + vh(h), window.innerHeight - vh(h)));
+      constellation.push(
+        new ForegroundStar(constellation.length, randomX, randomY)
+      );
+      for (let j = 0; j < constellation.length; j++) {
+        fault += 1;
+        if (fault == 50) {
+          console.log("break!");
+          break;
+        }
+
+        let x1 = constellation[j].x;
+        let y1 = constellation[j].y;
+        let x2 = constellation[i].x;
+        let y2 = constellation[i].y;
+
+        if (j !== i) {
+          if (distance(x1, y1, x2, y2) < spaceBetweenStars) {
+            console.log("moo", x1, y1, constellation[j]);
+            console.log("moo", x2, y2, constellation[i]);
+            console.log(distance(x1, y1, x2, y2));
+            randomX = Math.floor(
+              randomInt(0 + vw(w), window.innerWidth - vw(w))
+            );
+            randomY = Math.floor(
+              randomInt(0 + vh(h), window.innerHeight - vh(h))
+            );
+            j = j - 1;
+            constellation[i].push(
+              new ForegroundStar(constellation.length, randomX, randomY)
+            );
           }
         }
-      };
-      plot();
+      }
 
-      constellation.push(new ForegroundStar());
-      setTimeout(() => {
-        constellation[i].star = i;
-        constellation[i].draw();
-      }, (i - maxClicks) * 500);
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      // create an await function that calls createJoints after the setTimeout
-      // loop through the connectors array and create new Connection
+      // constellation.push(
+      //   new ForegroundStar(constellation.length, randomX, randomY)
+      // );
+      starNumber += 1;
     }
+    constellation.forEach((star, i) => {
+      setTimeout(() => {
+        if (i >= maxClicks) star.draw();
+      }, (i - 3) * 500);
+    });
   }
 
-  clickCount = clickCount + 1;
   clickActive = false;
+  // pathfinder(); // initiate pathfinder to display the min distance between points
 };
 
 canvas2.addEventListener("pointerdown", (e) => clickStart(e));
@@ -328,28 +385,35 @@ let createJoints = () => {
       y1: `${constellation[index].y}`,
       x2: constellation.at(index + 1).x,
       y2: constellation.at(index + 1).y,
-      // x2: `${constellation[`${index + 1}`].x}`,
-      // y2: `${constellation[index].y}`,
     });
     console.log(connectors);
   }
-
-  // connectors.push(
-  //   new Connection(constellation[index].x, constellation[index].y)
-  // );
-
-  // for (let i = index + 1; i < constellation.length; i++) {
-  //   connectors.push(
-  //     new Connection(
-  //       constellation[i].x,
-  //       constellation[i].y,
-  //       constellation[i - 1].x,
-  //       constellation[i - 1].y
-  //     )
-  //   );
-  // }
 };
 
-// for (let index = 0; index < connectors.length; index++) {
-//   console.log(connectors[index]);
-// }
+const starDistances = [];
+
+const calcDistances = () => {
+  for (let index = 0; index < constellation.length; index++) {
+    const element = array[index];
+  }
+};
+
+const pathfinder = () => {
+  let pathfinderRadius = aspect(5);
+
+  ctx2.save();
+  ctx2.beginPath();
+  ctx2.fillStyle = "#ff8833";
+  ctx2.rect(0, 0, 100, 100);
+  ctx2.arc(centerX, centerY, pathfinderRadius, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.closePath();
+  ctx2.restore();
+};
+
+function distance(x1, y1, x2, y2) {
+  const xDist = x2 - x1;
+  const yDist = y2 - y1;
+
+  return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+}
