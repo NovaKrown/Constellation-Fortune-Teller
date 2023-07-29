@@ -186,6 +186,8 @@ class ForegroundStar {
   }
 }
 
+// BUG: Fix overlap on initial long press
+
 //////////////////////////////////////////////
 // Long Click Animation
 let ani;
@@ -199,13 +201,13 @@ const animate = () => {
   ctx2.lineWidth = 1;
   ctx2.rotate(`${spin}`);
   ctx2.moveTo(0, 0);
-  ctx2.lineTo(10 + lineStretch, 0);
+  ctx2.lineTo(0 + lineStretch, 0);
   ctx2.moveTo(0, 0);
-  ctx2.lineTo(-10 - lineStretch, 0);
+  ctx2.lineTo(0 - lineStretch, 0);
   ctx2.moveTo(0, 0);
-  ctx2.lineTo(0, 10 + lineStretch);
+  ctx2.lineTo(0, 0 + lineStretch);
   ctx2.moveTo(0, 0);
-  ctx2.lineTo(0, -10 - lineStretch);
+  ctx2.lineTo(0, 0 - lineStretch);
   ctx2.stroke();
   ctx2.closePath();
   ctx2.restore();
