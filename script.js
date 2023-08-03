@@ -101,7 +101,7 @@ canvas2.height = window.innerHeight - 10;
 canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
 
-let aspect = window.innerWidth < window.innerHeight ? vw : vh;
+let aspect = window.innerWidth < window.innerHeight ? vw : vh; // select vw or vh, whichever is smaller
 
 class ForegroundStar {
   constructor(i, x = mouseX, y = mouseY) {
@@ -191,32 +191,43 @@ class ForegroundStar {
 //////////////////////////////////////////////
 // Long Click Animation
 let ani;
-let lineStretch = 1;
+let lineStretch = aspect(1);
 const animate = () => {
   ani = requestAnimationFrame(animate);
   ctx2.save();
   ctx2.beginPath();
   ctx2.translate(mouseX, mouseY);
-  ctx2.strokeStyle = `rgba(${colorOuter},1)`;
-  ctx2.lineWidth = 1;
+  ctx2.strokeStyle = `rgba(${colorInner},0.1)`;
+  ctx2.lineWidth = 2;
   ctx2.rotate(`${spin}`);
-  ctx2.moveTo(0, 0);
-  ctx2.lineTo(0 + lineStretch, 0);
-  ctx2.moveTo(0, 0);
-  ctx2.lineTo(0 - lineStretch, 0);
-  ctx2.moveTo(0, 0);
-  ctx2.lineTo(0, 0 + lineStretch);
-  ctx2.moveTo(0, 0);
-  ctx2.lineTo(0, 0 - lineStretch);
+
+  ctx2.moveTo(50, 0);
+  ctx2.lineTo(50 + lineStretch, 0); // right
+  ctx2.moveTo(-50, 0);
+  ctx2.lineTo(-50 - lineStretch, 0); // left
+  ctx2.moveTo(0, 50);
+  ctx2.lineTo(0, 50 + lineStretch); // up
+  ctx2.moveTo(0, -50);
+  ctx2.lineTo(0, -50 - lineStretch); //down
+
+  ctx2.moveTo(10, -10);
+  ctx2.lineTo(10 + lineStretch, -10 - lineStretch); // top right
+  ctx2.moveTo(-10, -10);
+  ctx2.lineTo(-10 - lineStretch, -10 - lineStretch); // top left
+  ctx2.moveTo(10, 10);
+  ctx2.lineTo(10 + lineStretch, 10 + lineStretch); //bottom right
+  ctx2.moveTo(-10, 10);
+  ctx2.lineTo(-10 - lineStretch, 10 + lineStretch); //bottom left
+
   ctx2.stroke();
   ctx2.closePath();
   ctx2.restore();
 
   if (
     lineStretch <
-    (canvas2.width > canvas1.height ? canvas1.width : canvas1.height)
+    (canvas2.width > canvas2.height ? canvas2.width / 8 : canvas2.height / 8)
   ) {
-    lineStretch = lineStretch * 1.1;
+    lineStretch = lineStretch * 1.4;
   }
 };
 
@@ -234,7 +245,7 @@ let mouseY = "";
 let clickCount = 0;
 let maxClicks = 3;
 let starNumber = 0;
-let maxStars = 7;
+let maxStars = 9;
 let clickFull = false;
 // randomInt(maxClicks + 2, maxClicks + 7);
 
@@ -277,14 +288,14 @@ let clickEnd = (e) => {
   if (clickFull && starNumber < maxStars) {
     // draw the stars chosen randomly
 
-    const spaceBetweenStars = aspect(5);
+    const spaceBetweenStars = aspect(15);
     console.log(spaceBetweenStars);
 
     for (let i = maxClicks; i < maxStars; i++) {
       // for (let i = maxClicks; i < maxStars; i++) {
       fault += 1;
-      if (fault == 50) {
-        console.log("break!");
+      if (fault < 20) {
+        console.log("break! i", i);
         break;
       }
       let w = window.innerWidth > window.innerHeight ? 3 : 10;
@@ -305,10 +316,11 @@ let clickEnd = (e) => {
       );
       for (let j = 0; j < constellation.length; j++) {
         fault += 1;
-        if (fault == 50) {
-          console.log("break!");
+        if (fault < 20) {
+          console.log("break! j", j);
           break;
         }
+        console.log(fault);
 
         let x1 = constellation[j].x;
         let y1 = constellation[j].y;
@@ -327,7 +339,7 @@ let clickEnd = (e) => {
               randomInt(0 + vh(h), window.innerHeight - vh(h))
             );
             j = j - 1;
-            constellation[i].push(
+            constellation.push(
               new ForegroundStar(constellation.length, randomX, randomY)
             );
           }
@@ -349,6 +361,98 @@ let clickEnd = (e) => {
   clickActive = false;
   // pathfinder(); // initiate pathfinder to display the min distance between points
 };
+
+// let clickEnd = (e) => {
+//   animationEnd();
+
+//   let fault = 0;
+
+//   // draw the stars chosen by user
+//   if (clickCount < maxClicks) {
+//     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+//     for (let i = 0; i < clickCount + 1; i++) {
+//       constellation[i].star = i;
+//       constellation[i].draw();
+//     }
+//     clickCount += 1;
+//     starNumber += 1;
+//   }
+
+//   if (clickFull && starNumber < maxStars) {
+//     // draw the stars chosen randomly
+
+//     const spaceBetweenStars = aspect(15);
+//     console.log(spaceBetweenStars);
+
+//     // for (let i = maxClicks; i < maxStars; i++) {
+//     // fault += 1;
+//     // if (fault == 50) {
+//     //   console.log("break!");
+//     //   break;
+//     // }
+
+//     let w = window.innerWidth > window.innerHeight ? 3 : 10;
+//     let h = window.innerHeight < window.innerWidth ? 8 : 4;
+
+//     for (let j = 0; j < maxStars - maxClicks; j++) {
+//       randomX = Math.floor(randomInt(0 + vw(w), window.innerWidth - vw(w)));
+//       randomY = Math.floor(randomInt(0 + vh(h), window.innerHeight - vh(h)));
+//       console.log(j, "start");
+//       fault += 1;
+//       if (fault == 50) {
+//         console.log("break!");
+//         break;
+//       }
+
+//       let x1 = randomX;
+//       let y1 = randomY;
+//       let x2 = constellation[j].x;
+//       let y2 = constellation[j].y;
+//       console.log(
+//         "spaceBetween",
+//         spaceBetweenStars,
+//         "distance",
+//         distance(x1, y1, x2, y2)
+//       );
+//       // if (j !== i) {
+//       if (distance(x1, y1, x2, y2) < spaceBetweenStars) {
+//         console.log("overlap - old coords", randomX, randomY);
+//         console.log("distance", distance(x1, y1, x2, y2));
+//         // randomX = Math.floor(randomInt(0 + vw(w), window.innerWidth - vw(w)));
+//         // randomY = Math.floor(randomInt(0 + vh(h), window.innerHeight - vh(h)));
+//         // console.log("moo moo", randomX, randomY);
+//         // j = j - 1;
+//         // console.log("go back one", j);
+//         // console.log("dont start");
+//         continue;
+
+//         // }
+//       }
+//       // console.log(j, "before push");
+
+//       constellation.push(
+//         new ForegroundStar(constellation.length, randomX, randomY)
+//       );
+//       console.log("push");
+//       starNumber += 1;
+//       if (starNumber === maxStars) {
+//         console.log("bounce");
+//         break;
+//       }
+//       // j = 0;
+//     }
+//     // }
+//     constellation.forEach((star, i) => {
+//       setTimeout(() => {
+//         if (i >= maxClicks) star.draw();
+//       }, (i - 3) * 500);
+//     });
+//   }
+
+//   clickActive = false;
+//   // pathfinder(); // initiate pathfinder to display the min distance between points
+// };
 
 canvas2.addEventListener("pointerdown", (e) => clickStart(e));
 canvas2.addEventListener("pointerup", (e) => clickEnd(e));
@@ -406,7 +510,7 @@ const pathfinder = () => {
   ctx2.save();
   ctx2.beginPath();
   ctx2.fillStyle = "#ff8833";
-  ctx2.rect(0, 0, 100, 100);
+  // ctx2.rect(0, 0, 100, 100);
   ctx2.arc(centerX, centerY, pathfinderRadius, 0, Math.PI * 2);
   ctx2.fill();
   ctx2.closePath();
