@@ -16,6 +16,7 @@
   justify-content: center;
   align-items: center;
   touch-action: none; /* experimental */
+  /* pointer-events: none; */
 }
 
 #canvas1 {
@@ -36,6 +37,11 @@
   /* border: green 5px dashed; */
   /* animation: rotation 5s ease infinite; */
 }
+
+/* #canvas3 {
+  display: block;
+  z-index: 3;
+} */
 
 .spin {
   /* border: green 5px dashed; */
@@ -82,3 +88,9 @@
     rotate: 360deg;
   }
 }
+
+/* .box {
+  background-color: aqua;
+  width: 90vw;
+  height: 90vh;
+} */
