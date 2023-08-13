@@ -27,6 +27,7 @@ console.log("Density", density);
 
 const vw = (percent) => (percent * window.innerWidth) / 100;
 const vh = (percent) => (percent * window.innerHeight) / 100;
+let aspect = window.innerWidth < window.innerHeight ? vw : vh; // select vw or vh, whichever is smaller
 
 let colorInner = "249, 214, 79";
 let colorOuter = "239, 80, 0";
@@ -53,6 +54,7 @@ canvas1.width = centerToCorner * 2;
 canvas1.height = centerToCorner * 2;
 canvas1.style.background = "#000";
 const ctx = canvas1.getContext("2d");
+console.log(canvas1);
 
 //////////////////////////////////////////////
 // Create Background
@@ -64,10 +66,10 @@ class BackgroundStar {
     this.y = Math.random() * canvas1.height;
     this.radius = Math.random() + this.size;
     this.dim = randomInt(0.5, 1);
-    this.special = `rgb(${randomInt(150, 255)},${randomInt(
-      150,
-      200
-    )},${randomInt(200, 255)}`;
+    this.special = `${randomInt(150, 255)},${randomInt(150, 200)},${randomInt(
+      200,
+      255
+    )}`;
   }
 
   // White Stars
@@ -83,17 +85,18 @@ class BackgroundStar {
   // Rare Stars
   draw2(type) {
     this.type = type;
+
     // star shadow
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius + 3, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.fillStyle = `rgba(${this.special}, 0.5)`;
+    ctx.arc(this.x, this.y, this.radius + 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
 
     // star body
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius + 1, 0, Math.PI * 2);
-    ctx.fillStyle = this.special;
+    ctx.fillStyle = `rgb(${this.special})`;
     ctx.fill();
     ctx.closePath();
   }
@@ -117,14 +120,11 @@ canvas2.height = window.innerHeight - 10;
 canvas2.style.background = "transparent";
 const ctx2 = canvas2.getContext("2d");
 
-let aspect = window.innerWidth < window.innerHeight ? vw : vh; // select vw or vh, whichever is smaller
-
 class ForegroundStar {
   constructor(i, x = mouseX, y = mouseY) {
     this.star = i;
     this.x = x;
     this.y = y;
-    this.location = Math.floor(pythag(this.x, this.y));
     this.starDesignRadius = aspect(6);
     this.gradientSmall = aspect(0.5);
     this.gradientLarge = aspect(6);
@@ -135,6 +135,7 @@ class ForegroundStar {
     this.opacity2 = 0.1;
     this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
     this.lineLength = this.circleRadius * 3;
+    // this.lineLength = this.circleRadius * 3;
     this.lineGrowth = 10;
   }
 
@@ -148,37 +149,89 @@ class ForegroundStar {
       this.gradientLarge
     );
 
+    const gradientLinesR = ctx2.createLinearGradient(0, 0, this.lineLength, 0);
+    const gradientLinesL = ctx2.createLinearGradient(0, 0, -this.lineLength, 0);
+    const gradientLinesT = ctx2.createLinearGradient(0, 0, 0, -this.lineLength);
+    const gradientLinesB = ctx2.createLinearGradient(0, 0, 0, this.lineLength);
+
+    gradientLinesR.addColorStop(0, `hsl(${hslOuter}, 1)`);
+    gradientLinesR.addColorStop(1, `hsl(${hslOuter}, 0)`);
+    gradientLinesL.addColorStop(0, `hsl(${hslOuter}, 1)`);
+    gradientLinesL.addColorStop(1, `hsl(${hslOuter}, 0)`);
+    gradientLinesT.addColorStop(0, `hsl(${hslOuter}, 1)`);
+    gradientLinesT.addColorStop(1, `hsl(${hslOuter}, 0)`);
+    gradientLinesB.addColorStop(0, `hsl(${hslOuter}, 1)`);
+    gradientLinesB.addColorStop(1, `hsl(${hslOuter}, 0)`);
+
     // cross
+    ctx2.save();
+
+    ctx2.translate(this.x, this.y);
+
+    ctx2.rotate(`${spin}`); // restore after
+
+    // ctx2.strokeStyle = `hsl(${hslOuter},${this.opacity1})`; // do not remove this line, original strokeStyle
+
+    // TODO: opacity on the lines is showing through the star design,
+
+    ctx2.lineWidth = 1;
+
+    // right
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.strokeStyle = gradientLinesR;
+    ctx2.moveTo(this.starDesignRadius - 20, 0);
+    ctx2.lineTo(this.lineLength, 0);
+    ctx2.stroke();
+    ctx2.closePath();
+    ctx2.restore();
+
+    // left
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.strokeStyle = gradientLinesL;
+    ctx2.moveTo(-this.starDesignRadius + 20, 0);
+    ctx2.lineTo(-this.lineLength, 0);
+    ctx2.stroke();
+    ctx2.closePath();
+    ctx2.restore();
+
+    // top
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.strokeStyle = gradientLinesT;
+    ctx2.moveTo(0, -this.starDesignRadius + 20);
+    ctx2.lineTo(0, -this.lineLength);
+    ctx2.stroke();
+    ctx2.closePath();
+    ctx2.restore();
+
+    // bottom
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.strokeStyle = gradientLinesB;
+    ctx2.moveTo(0, this.starDesignRadius - 20);
+    ctx2.lineTo(0, this.lineLength);
+    ctx2.stroke();
+    ctx2.closePath();
+    ctx2.restore();
+
+    ctx2.restore();
+
+    // starDesign
     ctx2.save();
     ctx2.beginPath();
     ctx2.translate(this.x, this.y);
-    ctx2.strokeStyle = `hsl(${hslOuter},${this.opacity1})`;
-    // ctx2.strokeStyle = `rgba(${colorOuter},${this.opacity1})`;
+    ctx2.fillStyle = `hsla(${hslInner}, 0.5)`;
+    ctx2.strokeStyle = `hsla(${hslOuter}, 0.1)`;
     ctx2.lineWidth = 1;
     ctx2.rotate(`${spin}`);
-    ctx2.moveTo(0 - this.lineLength, 0);
-    ctx2.lineTo(0 + this.lineLength, 0);
-    ctx2.moveTo(0, 0 - this.lineLength);
-    ctx2.lineTo(0, 0 + this.lineLength);
-    ctx2.stroke();
-    ctx2.closePath();
 
-    // starDesign
-    ctx2.beginPath();
-    ctx2.fillStyle = `hsla(${hslInner}, 0.5)`;
-
-    // ctx2.fillStyle = `rgba(${colorInner},0.5)`;
-    ctx2.strokeStyle = `hsl(${hslOuter}, 0.1)`;
-    // ctx2.strokeStyle = `rgba(${colorOuter},0.1)`;
-    ctx2.lineWidth = 1;
     ctx2.moveTo(0 - this.starDesignRadius, 0); // Start right
     ctx2.quadraticCurveTo(0, 0, 0, 0 - this.starDesignRadius); // To top
     ctx2.quadraticCurveTo(0, 0, 0 + this.starDesignRadius, 0); // To left
     ctx2.quadraticCurveTo(0, 0, 0, 0 + this.starDesignRadius); // To bottom
     ctx2.quadraticCurveTo(0, 0, 0 - this.starDesignRadius, 0); // To right
-
-    // ctx2.font = "30px Arial";
-    // ctx2.fillText(`${starCounter}`, 10, 50);
 
     ctx2.stroke();
     ctx2.fill();
@@ -188,41 +241,20 @@ class ForegroundStar {
     // circle
     ctx2.save();
     ctx2.beginPath();
-
     gradient.addColorStop(0, `hsl(${hslInner}, 1)`);
-    // gradient.addColorStop(0, `rgba(${colorInner}, 1)`);
     gradient.addColorStop(1, `hsl(${hslOuter}, 0)`);
-    // gradient.addColorStop(1, `rgba(${colorOuter}, 0)`);
-
     ctx2.fillStyle = gradient;
-
     ctx2.strokeStyle = `hsl(${hslOuter}, 0.1)`;
-    // ctx2.strokeStyle = `rgba(${colorOuter}, 0.1)`;
     ctx2.lineWidth = 5;
-
     ctx2.arc(this.x, this.y, this.circleRadius, 0, Math.PI * 2);
     ctx2.shadowColor = `hsl(${hslOuter}, 1)`;
-    // ctx2.shadowColor = `rgba(${colorOuter}, 1)`;
     ctx2.shadowBlur = this.blurRadius;
     ctx2.shadowOffsetX = 0;
     ctx2.shadowOffsetY = 0;
-
     ctx2.stroke();
     ctx2.fill();
     ctx2.closePath();
     ctx2.restore();
-
-    // // testing
-    // ctx2.save();
-    // ctx2.beginPath();
-    // ctx2.strokeStyle = "#fff";
-    // ctx2.lineWidth = 5;
-
-    // ctx2.arc(this.x, this.y, aspect(15), 0, Math.PI * 2);
-    // ctx2.stroke();
-    // ctx2.closePath();
-    // ctx2.restore();
-    // // end testing
   }
 }
 
