@@ -38,6 +38,13 @@ let hslOuter = `calc((${colorRandom} * 30) + 20), 100%, 50%`;
 let hslInner = `calc((${colorRandom} *30) + 50), 100%, 50%`;
 // let hslInner = "48, 93.4%, 64.3%";
 
+function distance(x1, y1, x2, y2) {
+  const xDist = x2 - x1;
+  const yDist = y2 - y1;
+
+  return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+}
+
 //////////////////////////////////////////////
 // Create Canvas 1
 
@@ -240,7 +247,7 @@ const animate = () => {
   ctx2.strokeStyle = `hsl(${hslInner},0.9)`;
   // ctx2.strokeStyle = `rgba(${colorInner},0.9)`;
   ctx2.translate(mouseX, mouseY);
-  ctx2.lineWidth = 2;
+  ctx2.lineWidth = 4;
   ctx2.rotate(spin + rotationEffect);
 
   ctx2.moveTo(50, 0);
@@ -265,12 +272,12 @@ const animate = () => {
   ctx2.stroke();
   ctx2.closePath();
   ctx2.restore();
-  rotationEffect += 0.04;
+  rotationEffect += 0.07;
   if (
     lineStretch <
     (canvas2.width > canvas2.height ? canvas2.width / 16 : canvas2.height / 16)
   ) {
-    lineStretch = lineStretch * 1.2;
+    lineStretch = lineStretch * 1.4;
   }
   ani = requestAnimationFrame(animate);
 };
@@ -443,19 +450,19 @@ class Connection {
   }
 }
 
-let connectors = [];
+// let connectors = [];
 
-let createJoints = () => {
-  for (let index = 0; index < constellation.length - 1; index++) {
-    connectors.push({
-      x1: `${constellation[index].x}`,
-      y1: `${constellation[index].y}`,
-      x2: constellation.at(index + 1).x,
-      y2: constellation.at(index + 1).y,
-    });
-    console.log(connectors);
-  }
-};
+// let createJoints = () => {
+//   for (let index = 0; index < constellation.length - 1; index++) {
+//     connectors.push({
+//       x1: `${constellation[index].x}`,
+//       y1: `${constellation[index].y}`,
+//       x2: constellation.at(index + 1).x,
+//       y2: constellation.at(index + 1).y,
+//     });
+//     console.log(connectors);
+//   }
+// };
 
 // const starDistances = [];
 
@@ -478,9 +485,4 @@ let createJoints = () => {
 //   ctx2.restore();
 // };
 
-function distance(x1, y1, x2, y2) {
-  const xDist = x2 - x1;
-  const yDist = y2 - y1;
-
-  return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
-}
+// TODO: create fade in for new stars, collision detection for manually placed stars
