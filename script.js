@@ -135,7 +135,6 @@ class ForegroundStar {
     this.opacity2 = 0.1;
     this.circleRadius = `${randomInt(this.circleMin, this.circleMax)}`;
     this.lineLength = this.circleRadius * 3;
-    // this.lineLength = this.circleRadius * 3;
     this.lineGrowth = 10;
   }
 
@@ -163,17 +162,11 @@ class ForegroundStar {
     gradientLinesB.addColorStop(0, `hsl(${hslOuter}, 1)`);
     gradientLinesB.addColorStop(1, `hsl(${hslOuter}, 0)`);
 
-    // cross
+    //////////
+    // CROSS
     ctx2.save();
-
     ctx2.translate(this.x, this.y);
-
-    ctx2.rotate(`${spin}`); // restore after
-
-    // ctx2.strokeStyle = `hsl(${hslOuter},${this.opacity1})`; // do not remove this line, original strokeStyle
-
-    // TODO: opacity on the lines is showing through the star design,
-
+    ctx2.rotate(`${spin}`);
     ctx2.lineWidth = 1;
 
     // right
@@ -218,7 +211,9 @@ class ForegroundStar {
 
     ctx2.restore();
 
-    // starDesign
+    //////////
+    // STARDESIGN
+
     ctx2.save();
     ctx2.beginPath();
     ctx2.translate(this.x, this.y);
@@ -238,7 +233,8 @@ class ForegroundStar {
     ctx2.closePath();
     ctx2.restore();
 
-    // circle
+    //////////
+    // CIRCLE
     ctx2.save();
     ctx2.beginPath();
     gradient.addColorStop(0, `hsl(${hslInner}, 1)`);
