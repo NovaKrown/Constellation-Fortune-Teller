@@ -450,28 +450,6 @@ class Connection {
   }
 }
 
-// let connectors = [];
-
-// let createJoints = () => {
-//   for (let index = 0; index < constellation.length - 1; index++) {
-//     connectors.push({
-//       x1: `${constellation[index].x}`,
-//       y1: `${constellation[index].y}`,
-//       x2: constellation.at(index + 1).x,
-//       y2: constellation.at(index + 1).y,
-//     });
-//     console.log(connectors);
-//   }
-// };
-
-// const starDistances = [];
-
-// const calcDistances = () => {
-//   for (let index = 0; index < constellation.length; index++) {
-//     const element = array[index];
-//   }
-// };
-
 // const pathfinder = () => {
 //   let pathfinderRadius = aspect(5);
 
